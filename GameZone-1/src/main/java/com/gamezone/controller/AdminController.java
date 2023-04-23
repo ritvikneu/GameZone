@@ -16,11 +16,15 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.gamezone.dao.GamerDAO;
 import com.gamezone.dao.GamesDAO;
+import com.gamezone.dao.ScoresDAO;
 import com.gamezone.dao.UniversityDAO;
 import com.gamezone.pojo.Games;
+import com.gamezone.pojo.Scores;
 import com.gamezone.pojo.University;
 
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 public class AdminController {
@@ -61,7 +65,8 @@ public class AdminController {
 	@PostMapping("/admin/addgames.htm")
 	public String addGamesPOST(@ModelAttribute("games") Games games, UniversityDAO univDAO, GamesDAO gamesDao,
 //    		@RequestParam("game") String game, 
-			BindingResult result, HttpServletRequest request, SessionStatus status, ModelAndView mv) throws Exception {
+			BindingResult result, HttpServletRequest request, 
+			SessionStatus status, ModelAndView mv) throws Exception {
 
 		games.setGameName(request.getParameter("gameName"));
 		games.setAvailSlots(Integer.parseInt(request.getParameter("availSlots")));
@@ -83,5 +88,25 @@ public class AdminController {
 		status.setComplete();
 		return "home";
 	}
+	
+	@GetMapping("/games/getScoresForGame.htm")
+	public void getScoresForGame(ModelAndView mv, 
+			HttpServletRequest request, 
+			HttpServletResponse response, 
+			ScoresDAO scoresDAO,
+			GamesDAO gamesDAO) throws Exception {
+
+		int gameId = Integer.parseInt(request.getParameter("gameId"));
+
+		List<Scores> scoreList = scoresDAO.getScoresByGame(gameId);
+
+		request.setAttribute("scoreList", scoreList);
+//		mv.setViewName("game-booking");
+//		return "redirect:/gamer/getAllGames.htm";
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/gamer/getAllGames.htm");
+	    dispatcher.forward(request, response);
+
+	}
+
 
 }

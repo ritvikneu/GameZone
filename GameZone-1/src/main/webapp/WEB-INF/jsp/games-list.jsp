@@ -22,6 +22,7 @@
         .create-booking{
             display: none;
         }
+       
     </style>
 </head>
 <body>
@@ -42,12 +43,15 @@
                 <td>${game.location}</td>
                 <td>${game.availSlots}</td>
                 <td>
-                    <!-- <form action="/bookSlot" method="post"> -->
                         <input type="hidden" name="gameId" value="${game.gameId}">
                         <button onclick=showCreateBookingForm(this) data-gameId="${game.gameId}" data-gameName="${game.gameName}" class="btn">Create Booking</button>
                         <button onclick=showJoinBooking() class="btn">Join a Booking</button>
-                        <button onclick=showLeaderboard() class="btn">Leaderboard</button>
-                    <!-- </form> -->
+                       
+                    <form action="/GameZone/games/getScoresForGame.htm" method="get">
+                        <input type="hidden" name="gameId" value="${game.gameId}">
+                        <button onclick=showLeaderboardForm(this) data-gameId="${game.gameId}"  class="btn">Leaderboard</button>
+                    </form>
+
                 </td>
             </tr>
         </c:forEach>
@@ -74,6 +78,30 @@
         </form>
     </div>
 
+    <div id="leaderboardTable"></div>
+
+
+    <div class="leaderboard" id="leaderboardForm" >
+
+        <h2>Leaderboard on <span id="selectedGameName">"${scoreList[0].game.gameName}"</span></h2>
+
+    <table>
+        <tr>
+            <th>Gamer ID</th>
+            <th>Score</th>
+            <!-- Add more columns as needed -->
+        </tr>
+        <c:forEach var="score" items="${scoreList}">
+            <tr>
+                <td>${score.gamer.gamerName}</td>
+                <td>${score.score}</td>
+                <!-- Display other score details as needed -->
+            </tr>
+        </c:forEach>
+    </table>
+</div>
+    
+
     <script>
         // Function to show the create-booking form when the "Booking" button is clicked
         function showCreateBookingForm(element) {
@@ -89,6 +117,71 @@
             document.getElementById('createBookingForm').style.display = "block"
          }
         }
+
+        function showLeaderboardForm(element) {
+            document.getElementById('selectedGameName').innerText = element.getAttribute("data-gameName");
+            // document.getElementById('gameId').innerText = element.getAttribute("data-gameId");
+            // document.getElementById('gameName').innerText = element.getAttribute("data-gameName");
+         var display =   document.getElementById('leaderboardForm').style.display;
+         if(display==="block"){
+            document.getElementById('leaderboardForm').style.display = "none"
+         }else{
+            document.getElementById('leaderboardForm').style.display = "block"
+         }
+        }
+
+
+
+    //     function showLeaderboard(element) {
+    //         var gameId = element.getAttribute("data-gameId");
+    //     const xhr = new XMLHttpRequest();
+    //     xhr.open('GET', `/GameZone/games/getScoresForGame.htm?gameId=1`); // Update the URL to the correct endpoint
+    //     xhr.setRequestHeader('Content-Type', 'application/json');
+    //     xhr.onload = () => {
+    //         if (xhr.status === 200) {
+    //             const responseData = JSON.parse(xhr.responseText);
+                
+    //             const leaderboardContainer = document.getElementById('leaderboardContainer');
+    //             leaderboardContainer.innerHTML = ''; // Clear the container before adding new content
+    //             leaderboardContainer.appendChild(createLeaderboardTable(responseData.scoreList));
+    //         } else {
+    //             console.error('Failed to fetch leaderboard data:', xhr.status, xhr.statusText);
+    //         }
+    //     };
+    //     xhr.send();
+    // }
+
+    function createLeaderboardTable(scoreList) {
+        const table = document.createElement('table');
+        const headerRow = document.createElement('tr');
+        const gamerIdHeader = document.createElement('th');
+        const scoreHeader = document.createElement('th');
+
+        gamerIdHeader.textContent = 'Gamer ID';
+        scoreHeader.textContent = 'Score';
+
+        headerRow.appendChild(gamerIdHeader);
+        headerRow.appendChild(scoreHeader);
+
+        table.appendChild(headerRow);
+
+        scoreList.forEach((score) => {
+            const row = document.createElement('tr');
+            const gamerIdCell = document.createElement('td');
+            const scoreCell = document.createElement('td');
+
+            gamerIdCell.textContent = score.gamerId;
+            scoreCell.textContent = score.score;
+
+            row.appendChild(gamerIdCell);
+            row.appendChild(scoreCell);
+
+            table.appendChild(row);
+        });
+
+        return table;
+    }
+
 
         // Function to set game ID and game name in the hidden fields of the create booking form
         function setGameDetails(gameId, gameName) {
