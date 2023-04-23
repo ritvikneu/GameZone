@@ -191,6 +191,12 @@ public class GamerController {
 		Date bookDate = new Date();
 		bookDate = dateFormat.parse(bookingDate);
 		score.setScoreDate(bookDate);
+		
+		int scored = Integer.parseInt(request.getParameter("score"));
+		score.setScore(scored);
+		
+		
+		
 		scoresDAO.saveScores(score);
 		
 		
@@ -205,7 +211,7 @@ public class GamerController {
 		}
 		// mark it complete
 		status.setComplete();
-		return "home";
+		return "redirect:/gamer/gamer-booking-list.htm";
 	}
 
 }

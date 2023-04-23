@@ -5,6 +5,8 @@
 <html>
 <head>
     <title>Gamer Booking List</title>
+
+    <jsp:include page="home.jsp" />
     <script>
         function addScore() {
             var score = prompt("Enter score:");
@@ -12,12 +14,12 @@
                 // Check if input is a valid integer
                 if (!isNaN(parseInt(score))) {
                     // Set the value of the hidden input field to the entered score
-                    var scoreInput = document.getElementsByName('score')[0];
+                    var scoreInput = document.getElementById('score');
                     scoreInput.value = score;
                     scoreInput.innerText = score;
                     // Submit the form
-                    // var form = document.querySelector('form');
-                    // form.submit();
+                    var form = document.querySelector('scoreForm');
+                    form.submit();
                 } else {
                     alert("Please enter a valid integer.");
                 }
@@ -43,12 +45,12 @@
                 <td>
                     <jsp:useBean id="current" class="java.util.Date"/>
                         <c:if test="${booking.bookDate lt current}"> 
-                    <form action="/GameZone/gamer/addScores.htm" method="get"   style="display: inline;">
+                    <form id="scoreForm" action="/GameZone/gamer/addScores.htm" method="get"   style="display: inline;">
                         <input type="hidden" name="bookingId" value="${booking.bookingId}">
                         <input type="hidden" name="gameId" value="${booking.games.gameId}">
                         <input type="hidden" name="bookDate" value="${booking.bookDate}">
-                        <input type="hidden" name="score">
-                        <input type="submit" value="Add Score" onclick="addScore()">    
+                        <input type="text" name="score" id="score">
+                        <input type="submit" value="Add Score" >    
                     </form>
                     
                 </c:if>
@@ -57,6 +59,10 @@
                         <form action="/GameZone/booking/cancelBooking.htm" method="post" style="display: inline;">
                             <input type="hidden" name="bookingId" value="${booking.bookingId}">
                             <button type="submit" value="Cancel Booking" >Cancel Booking</button>
+                        </form>
+                        <form action="/GameZone/booking/modifyBooking.htm" method="post" style="display: inline;">
+                            <input type="hidden" name="bookingId" value="${booking.bookingId}">
+                            <button type="submit" value="Modify Booking" >Modify Booking</button>
                         </form>
                     </c:if>
                     

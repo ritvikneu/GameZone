@@ -48,7 +48,7 @@ public class ScoresDAO extends DAO{
 		public List<Scores> getScoresByGame(int gameId) {
 			close();
 			begin();
-			Query qObj = getSession().createQuery("from Scores where gameId=:gameId ");
+			Query qObj = getSession().createQuery("from Scores where gameId=:gameId order by score desc");
 			qObj.setParameter("gameId", gameId);
 			List<Scores> ScoresList = qObj.getResultList();
 			commit();
