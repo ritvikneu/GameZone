@@ -13,6 +13,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.springframework.stereotype.Component;
 
 import com.gamezone.util.HibernateUtil;
 
@@ -26,6 +27,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+@Component
 public class DAO {
 
     private static final Logger log = Logger.getAnonymousLogger();
@@ -42,6 +44,9 @@ public class DAO {
             session = sessionFactory.openSession();
             DAO.sessionThread.set(session);
         }
+//    	 Session session = sessionFactory.openSession();
+//             DAO.sessionThread.set(session);
+   
         return session;
     }
 

@@ -5,8 +5,17 @@
 
 package com.gamezone.pojo;
 
+import java.util.Date;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.springframework.stereotype.Component;
 
@@ -17,54 +26,76 @@ import org.springframework.stereotype.Component;
 @Component
 @Entity
 public class Scores {
-    private int scoreId;
-    @Id
-    private int gamerId;
-    private int gameId;
-    private int scores;
+	
+	@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int scoreId;
+
+    @ManyToOne
+    @JoinColumn(name = "gamerId")
+    private Gamer gamer; 
+    @ManyToOne 
+    @JoinColumn(name = "gameId")
+    private Games games;
+    
+    private int score;
+    
+    @Temporal(TemporalType.DATE)
+	private Date scoreDate;
+    
     private int position;
 
     public Scores() {
     }
 
-    public int getScoreId() {
-        return scoreId;
-    }
-
-    public void setScoreId(int scoreId) {
-        this.scoreId = scoreId;
-    }
+    public Gamer getGamer() {
+		return gamer;
+	}
     
-    public int getGamerId() {
-        return gamerId;
-    }
+	public void setGamer(Gamer gamer) {
+		this.gamer = gamer;
+	}
 
-    public void setGamerId(int gamerId) {
-        this.gamerId = gamerId;
-    }
+	public Games getGames() {
+		return games;
+	}
 
-    public int getGameId() {
-        return gameId;
-    }
 
-    public void setGameId(int gameId) {
-        this.gameId = gameId;
-    }
+	public void setGames(Games games) {
+		this.games = games;
+	}
 
-    public int getScores() {
-        return scores;
-    }
+	public int getScore() {
+		return score;
+	}
 
-    public void setScores(int scores) {
-        this.scores = scores;
-    }
+	public void setScore(int score) {
+		this.score = score;
+	}
 
-    public int getPosition() {
+	public int getPosition() {
         return position;
     }
 
     public void setPosition(int position) {
         this.position = position;
     }
+
+	public int getScoreId() {
+		return scoreId;
+	}
+
+	public void setScoreId(int scoreId) {
+		this.scoreId = scoreId;
+	}
+
+	public Date getScoreDate() {
+		return scoreDate;
+	}
+
+	public void setScoreDate(Date scoreDate) {
+		this.scoreDate = scoreDate;
+	}
+    
     
 }

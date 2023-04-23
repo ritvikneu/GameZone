@@ -53,7 +53,7 @@
         </c:forEach>
     </table>
     </div>
-    <div><p> <c:out value="${message}" /> </p></div>
+    <div><p> ${sessionScope.message}</p></div>
     <div class="create-booking" id="createBookingForm">
         <h2>Create Booking on <span id="selectedGameName"></span></h2>
         <form action="/GameZone/booking/add.htm" method="post" >

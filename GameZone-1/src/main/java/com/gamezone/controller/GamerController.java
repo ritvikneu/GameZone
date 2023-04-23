@@ -7,6 +7,7 @@ package com.gamezone.controller;
 
 import com.gamezone.dao.GamerDAO;
 import com.gamezone.dao.GamesDAO;
+import com.gamezone.dao.ScoresDAO;
 import com.gamezone.dao.UniversityDAO;
 import com.gamezone.pojo.Gamer;
 import com.gamezone.pojo.Games;
@@ -16,6 +17,8 @@ import com.gamezone.pojo.University;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -163,15 +166,36 @@ public class GamerController {
 
     
 
-	@GetMapping("/gamer/add.htm")
-	public String addScoresGET(ModelMap model, Scores scores) throws Exception {
-		model.addAttribute("scores", scores);
-		return "addScoresView";
-	}
 
-	@PostMapping("/gamer/add.htm")
-	public String addScoresPOST(@ModelAttribute("scores") Scores scores, @RequestParam("score") String score,
+
+	@GetMapping("/gamer/addScores.htm")
+	public String addScoresPOST(ScoresDAO scoresDAO,
+			GamesDAO gamesDAO,
+			Scores score,
+			HttpServletRequest request,
 			BindingResult result, SessionStatus status) throws Exception {
+		
+		
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
+			score.setGamer(gamer);
+		}
+
+		int gameId = Integer.parseInt(request.getParameter("gameId"));
+		Games games = gamesDAO.getGame(gameId);
+		score.setGames(games);
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String bookingDate = request.getParameter("bookDate");
+		Date bookDate = new Date();
+		bookDate = dateFormat.parse(bookingDate);
+		score.setScoreDate(bookDate);
+		scoresDAO.saveScores(score);
+		
+		
+		
+		
 		if (result.hasErrors())
 			return "addScoresView";
 		// instantiate Hibernate objects, and save user
