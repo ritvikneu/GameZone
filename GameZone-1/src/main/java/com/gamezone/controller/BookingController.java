@@ -67,9 +67,9 @@ public class BookingController {
 			Model model,
 			SessionStatus status) throws Exception {
 
-		HttpSession session = request.getSession(false);
 
 		Booking booking = new Booking();
+		HttpSession session = request.getSession(false);
 		if (session != null) {
 		Gamer	gamer = (Gamer) session.getAttribute("loggedGamer");
 		booking.setGamer(gamer);
@@ -111,5 +111,24 @@ public class BookingController {
 //		mv.setViewName("games-list");
 		return "redirect:/gamer/getAllGames.htm";
 	}
+	
+	@GetMapping("/gamer/gamer-booking-list.htm")
+	public ModelAndView viewGamerBookingList(
+			GamesDAO gamesDAO,
+			BookingDAO bookingDAO,
+			BindingResult result,
+			HttpServletRequest request, 
+			ModelAndView mv,
+			Model model,
+			SessionStatus status) {
+			mv = new ModelAndView("gamer-booking-list");
+			HttpSession session = request.getSession(false);
+			Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
+			
+	    List<Booking> bookingList = bookingDAO.getBookingByGamer(gamer.getGamerId()); 
+	    mv.addObject("bookingList", bookingList);
+	    return mv;
+	}
+
 
 }

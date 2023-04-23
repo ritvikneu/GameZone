@@ -38,7 +38,7 @@
 <div class="topnav">
   <a class="active" href="#home">Home</a>
   <a href="getAllGames.htm">Games</a>
-  <a href="/booking">Booking</a>
+  <a href="gamer-booking-list.htm"">Booking</a>
   <h5>${sessionScope.loggedGamer.gamerName}</h5>
   <h5>${sessionScope.loggedGamer.university.univId}</h5>
   <a href="/GameZone/gamer/logout.htm">Logout</a>

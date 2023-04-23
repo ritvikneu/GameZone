@@ -38,9 +38,9 @@ public class BookingDAO extends DAO{
 		public List<Booking> getBookingByGamer(int gamerId) {
 			close();
 			begin();
-			Query qObj = getSession().createQuery("from Booking where gamerId:gamerId ");
-			List<Booking> bookingList = qObj.getResultList();
+			Query qObj = getSession().createQuery("from Booking where gamer_gamerId=:gamerId ");
 			qObj.setParameter("gamerId", gamerId);
+			List<Booking> bookingList = qObj.getResultList();
 			commit();
 			close();
 			return bookingList;

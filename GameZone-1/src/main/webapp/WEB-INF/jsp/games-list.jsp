@@ -57,7 +57,7 @@
     <div class="create-booking" id="createBookingForm">
         <h2>Create Booking on <span id="selectedGameName"></span></h2>
         <form action="/GameZone/booking/add.htm" method="post" >
-            <label for="date">Date:</label>
+            <label for="date">Date: </label>
             <input type="date" id="bookDate" name="bookDate">
             <br>
             <label for="slot">Slot:</label>
