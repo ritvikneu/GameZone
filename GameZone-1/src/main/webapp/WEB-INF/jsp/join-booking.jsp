@@ -25,6 +25,7 @@
                 <tr>
                     <th>Game Name</th>
                     <th>Booked by Gamer</th>
+                    <th>Booking ID</th>
                     <th>Booking Date</th>
                     <th>Slot Time</th>
                     <th>Actions</th>
@@ -34,6 +35,7 @@
                     <tr>
                         <td>${booking.games.gameName}</td>
                         <td>${booking.gamer.gamerName}</td>
+                        <td>${booking.bookingId}</td>
                         <td>${booking.bookDate}</td>
                         <td>${booking.slot}</td>
                         <td>

@@ -195,7 +195,7 @@ public class BookingController {
 
 		Booking booking = bookingDAO.getBooking(bookingId);
 		
-		List<Gamer> zoners = booking.getZoners();
+		Set<Gamer> zoners = booking.getZoners();
 		zoners.add(gamer);
 		
 		booking.setZoners(zoners);

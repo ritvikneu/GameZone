@@ -1,14 +1,15 @@
 
 package com.gamezone.pojo;
 
-import java.util.ArrayList;
 //import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 //import java.util.HashSet;
 //import java.util.List;
 //import java.util.Set;
 //import java.util.SortedMap;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -59,8 +60,8 @@ public class Booking {
 //	private SortedMap<Gamer> Gamer;
 
 	
-	@OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Gamer> zoners = new ArrayList();
+	@ManyToMany(cascade = CascadeType.ALL)
+	private Set<Gamer> zoners = new HashSet<Gamer>();
 	
     public Booking() {
     }
@@ -145,21 +146,14 @@ public class Booking {
 	}
 
 
-	public List<Gamer> getZoners() {
+	public Set<Gamer> getZoners() {
 		return zoners;
 	}
 
 
-	public void setZoners(List<Gamer> zoners) {
+	public void setZoners(Set<Gamer> zoners) {
 		this.zoners = zoners;
 	}
 
-
-
-
-	
-    
-	
-    
     
 }
