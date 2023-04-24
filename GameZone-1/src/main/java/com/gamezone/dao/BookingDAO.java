@@ -7,6 +7,7 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Component;
 
 import com.gamezone.pojo.Booking;
+import com.gamezone.pojo.Games;
 
 @Component
 public class BookingDAO extends DAO{
@@ -45,6 +46,25 @@ public class BookingDAO extends DAO{
 			close();
 			return bookingList;
 		}
+		
+		public List<Booking> getBookingByGames(int gameId) {
+			close();
+			begin();
+			Query qObj = getSession().createQuery("from Booking where games_gameId=:gameId and score>0 order by score desc");
+			qObj.setParameter("gameId", gameId);
+			List<Booking> bookingList = qObj.getResultList();
+			commit();
+			close();
+			return bookingList;
+		}
+		
+		public void updateBookingByObj(Booking booking) {
+			begin();
+			getSession().update(booking);
+			commit();
+		}
+
+		
 	    public void deleteBooking(Booking booking) {
 	        begin();
 	        getSession().delete(booking);

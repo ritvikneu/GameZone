@@ -1,0 +1,524 @@
+ADMIN CONTROLLER
+package com.gamezone.controller;
+
+import java.util.List;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.gamezone.dao.BookingDAO;
+import com.gamezone.dao.GamerDAO;
+import com.gamezone.dao.GamesDAO;
+import com.gamezone.dao.ScoresDAO;
+import com.gamezone.dao.UniversityDAO;
+import com.gamezone.pojo.Booking;
+import com.gamezone.pojo.Games;
+import com.gamezone.pojo.Scores;
+import com.gamezone.pojo.University;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@Controller
+public class AdminController {
+
+	@GetMapping("/admin")
+	public String handleGet() {
+		return "qwerty";
+	}
+
+	@GetMapping("/admin/getuniv")
+	public ModelAndView getAllUniversities(ModelMap model, UniversityDAO univDAO, ModelAndView mv) throws Exception {
+		List<University> univList = univDAO.getAllUniv();
+		mv.addObject("univList", univList);
+		mv.setViewName("univ-games");
+		return mv;
+	}
+
+	@PostMapping("/admin/adduniv.htm")
+	public ModelAndView addUnivPOST(@ModelAttribute("university") University university, UniversityDAO univDAO,
+			BindingResult result, SessionStatus status, ModelMap model, HttpServletRequest request, ModelAndView mv)
+			throws Exception {
+		university.setUnivName(request.getParameter("universityName"));
+		univDAO.saveUniversity(university);
+		List<University> univList = univDAO.getAllUniv();
+
+		mv.addObject("univList", univList);
+		mv.setViewName("univ-list");
+
+		return mv;
+	}
+
+	@GetMapping("/admin/getGamesList")
+	@ResponseBody
+	public List<Games> getGamesList(@RequestParam("univId") int univId, GamesDAO gamesDAO) {
+		return gamesDAO.getGamesByUniv(univId);
+	}
+
+	@PostMapping("/admin/addgames.htm")
+	public String addGamesPOST(@ModelAttribute("games") Games games, UniversityDAO univDAO, GamesDAO gamesDao,
+//    		@RequestParam("game") String game, 
+			BindingResult result, HttpServletRequest request, 
+			SessionStatus status, ModelAndView mv) throws Exception {
+
+		games.setGameName(request.getParameter("gameName"));
+		games.setAvailSlots(Integer.parseInt(request.getParameter("availSlots")));
+		games.setLocation(request.getParameter("location"));
+//    	games.setUnivId(Integer.parseInt(request.getParameter("univId")));
+		int univId = Integer.parseInt(request.getParameter("univId"));
+		games.setUniversity(univDAO.getUniversity(univId));
+		gamesDao.saveGames(games);
+
+		if (result.hasErrors()) {
+			return "addGamesView";
+		}
+		// instantiate Hibernate objects, and save user
+		try {
+		} catch (Exception e) {
+			System.out.println("Exception: " + e.getMessage());
+		}
+		// mark it complete
+		status.setComplete();
+		return "home";
+	}
+	
+	@GetMapping("/games/getScoresForGame.htm")
+	public void getScoresForGame(ModelAndView mv, 
+			HttpServletRequest request, 
+			HttpServletResponse response, 
+			ScoresDAO scoresDAO,
+			GamesDAO gamesDAO) throws Exception {
+
+		int gameId = Integer.parseInt(request.getParameter("gameId"));
+
+		List<Scores> scoreList = scoresDAO.getScoresByGame(gameId);
+
+		request.setAttribute("scoreList", scoreList);
+//		mv.setViewName("game-booking");
+//		return "redirect:/gamer/getAllGames.htm";
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/gamer/getAllGames.htm");
+	    dispatcher.forward(request, response);
+
+	}
+	
+	@GetMapping("/games/getLeaderBoard.htm")
+	public void getLeaderboard(ModelAndView mv, 
+			HttpServletRequest request, 
+			HttpServletResponse response, 
+			BookingDAO bookingDAO,
+			GamesDAO gamesDAO) throws Exception {
+
+		int gameId = Integer.parseInt(request.getParameter("gameId"));
+
+		List<Booking> scoreList = bookingDAO.getBookingByGames(gameId);
+
+		request.setAttribute("scoreList", scoreList);
+//		mv.setViewName("game-booking");
+//		return "redirect:/gamer/getAllGames.htm";
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/gamer/getAllGames.htm");
+	    dispatcher.forward(request, response);
+
+	}
+
+
+}
+-------------------------
+BOOKING CONTROLLER
+
+package com.gamezone.controller;
+
+import com.gamezone.dao.BookingDAO;
+import com.gamezone.dao.GamesDAO;
+import com.gamezone.dao.UniversityDAO;
+import com.gamezone.pojo.Booking;
+import com.gamezone.pojo.Gamer;
+import com.gamezone.pojo.Games;
+import com.gamezone.pojo.University;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.ModelAndView;
+
+
+@Controller
+public class BookingController {
+
+//	@GetMapping("/booking/add.htm")
+//	public String addBookingGET(ModelMap model, Booking booking) throws Exception {
+//		model.addAttribute("booking", booking);
+//		return "game-booking";
+//	}
+
+	@GetMapping("/booking/bookgames.htm")
+	public ModelAndView addBookingGET(ModelAndView mv, HttpServletRequest request, UniversityDAO univDAO,
+			GamesDAO gamesDAO) throws Exception {
+
+		List<University> univList = univDAO.getAllUniv();
+		List<Games> gamesList = gamesDAO.getAllGames();
+
+		mv.addObject("univList", univList);
+		mv.addObject("gamesList", gamesList);
+//		mv.setViewName("game-booking");
+		mv.setViewName("univ-list");
+		return mv;
+	}
+
+	@PostMapping("/booking/cancelBooking.htm")
+	public String cancelBooking(ModelAndView mv, HttpServletRequest request, BookingDAO bookingDAO,
+			GamesDAO gamesDAO) throws Exception {
+
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
+
+		}
+		int bookingId = Integer.parseInt(request.getParameter("bookingId"));
+		Booking booking = bookingDAO.getBooking(bookingId);
+		bookingDAO.deleteBooking(booking);
+		
+		session.setAttribute("message", "Cancelled Booking");
+		return "redirect:/gamer/gamer-booking-list.htm";
+	}
+	
+	@GetMapping("/booking/modifyBooking.htm")
+	public String modifyBooking(ModelAndView mv, HttpServletRequest request, BookingDAO bookingDAO,
+			GamesDAO gamesDAO) throws Exception {
+
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
+
+		}
+		int bookingId = Integer.parseInt(request.getParameter("bookingId"));
+
+		Booking booking = bookingDAO.getBooking(bookingId);
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String bookingDate = request.getParameter("bookDate");
+		Date bookDate = new Date();
+		bookDate = dateFormat.parse(bookingDate);
+		booking.setBookDate(bookDate);
+		
+		bookingDAO.updateBookingByObj(booking);
+		
+		session.setAttribute("message", "Booking Modified");
+		return "redirect:/gamer/gamer-booking-list.htm";
+	}
+	
+	@GetMapping("/booking/modifyBookingScore.htm")
+	public String modifyBookingScore(ModelAndView mv, HttpServletRequest request, BookingDAO bookingDAO,
+			GamesDAO gamesDAO) throws Exception {
+
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
+
+		}
+		int bookingId = Integer.parseInt(request.getParameter("bookingId"));
+		
+		int scored = Integer.parseInt(request.getParameter("score"));
+		
+		Booking booking = bookingDAO.getBooking(bookingId);
+		booking.setScore(scored);
+		
+		
+		bookingDAO.updateBookingByObj(booking);
+		
+		session.setAttribute("message", "Booking Modified");
+		return "redirect:/gamer/gamer-booking-list.htm";
+	}
+	
+	
+
+	@PostMapping("/booking/createBooking.htm")
+	public String addBookingPOST(GamesDAO gamesDAO, BookingDAO bookingDAO, BindingResult result,
+			HttpServletRequest request, ModelAndView mv, Model model, SessionStatus status) throws Exception {
+
+		Booking booking = new Booking();
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
+			booking.setGamer(gamer);
+		}
+		int gameId = Integer.parseInt(request.getParameter("gameId"));
+
+		Games games = gamesDAO.getGame(gameId);
+		int availSlots = games.getAvailSlots();
+		if (availSlots < 1) {
+			session.setAttribute("message", "cannot make the booking as no slots available");
+
+		} else {
+
+			games.setAvailSlots(games.getAvailSlots() - 1);
+			booking.setGames(games);
+
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			String bookingDate = request.getParameter("bookDate");
+			Date bookDate = new Date();
+			bookDate = dateFormat.parse(bookingDate);
+			booking.setBookDate(bookDate);
+			
+			booking.setSlot(request.getParameter("slot"));
+
+
+			gamesDAO.updateGamesByObj(games);
+			bookingDAO.saveBooking(booking);
+			session.setAttribute("message", "Booking success");
+			System.out.println();
+
+		}
+//		mv.setViewName("games-list");
+		return "redirect:/gamer/getAllGames.htm";
+	}
+
+	@GetMapping("/gamer/gamer-booking-list.htm")
+	public ModelAndView viewGamerBookingList(GamesDAO gamesDAO, BookingDAO bookingDAO, BindingResult result,
+			HttpServletRequest request, ModelAndView mv, Model model, SessionStatus status) {
+		mv = new ModelAndView("gamer-booking-list");
+		HttpSession session = request.getSession(false);
+		Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
+
+		List<Booking> bookingList = bookingDAO.getBookingByGamer(gamer.getGamerId());
+		mv.addObject("bookingList", bookingList);
+		mv.setViewName("gamer-booking-list");
+		return mv;
+	}
+
+}
+-----------------------
+GAMER CONTROLLER
+package com.gamezone.controller;
+
+import com.gamezone.dao.GamerDAO;
+import com.gamezone.dao.GamesDAO;
+import com.gamezone.dao.ScoresDAO;
+import com.gamezone.dao.UniversityDAO;
+import com.gamezone.pojo.Gamer;
+import com.gamezone.pojo.Games;
+import com.gamezone.pojo.Scores;
+import com.gamezone.pojo.University;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.ModelAndView;
+
+/**
+ *
+ * @author ritvikparamkusham
+ */
+
+@Controller
+public class GamerController {
+
+//     @Autowired
+//    private UserValidator uservalidator;
+
+	// Gamer Registration
+//	@GetMapping("/gamerGet/registration.htm")
+//	public String addGamerGET(ModelMap model, Gamer gamer, GamerDAO gamerDao, UniversityDAO univDAO) throws Exception {
+//		List<University> univList = univDAO.getAllUniv();
+//		model.addAttribute("univList", univList);
+//		gamer = gamerDao.getGamer(1);
+//		model.addAttribute("gamer", gamer);
+//		return "gamer-registration";
+//	}
+
+	@GetMapping("/gamer/login.htm")
+	public ModelAndView displayLogin(@ModelAttribute("gamer") Gamer gamer, ModelMap model, GamerDAO gamerDao,
+			UniversityDAO univDAO, HttpServletRequest request, ModelAndView mv) throws Exception {
+
+		HttpSession session = (HttpSession) request.getSession();
+		gamer = (Gamer) session.getAttribute("loggedGamer");
+		if(gamer!=null) {
+			mv.addObject("gamer", gamer);
+			mv.setViewName("home");
+		}else {
+			
+		
+		List<University> univList = univDAO.getAllUniv();
+		model.addAttribute("univList", univList);
+//		mv.addObject("gamer", gamer);
+		mv.setViewName("login");
+		}
+
+		return mv;
+	}
+
+	@PostMapping("/gamer/home.htm")
+	public ModelAndView showHome(@ModelAttribute("gamer") Gamer gamer, ModelMap model, GamerDAO gamerDao,
+			UniversityDAO univDAO, HttpServletRequest request, ModelAndView mv) throws Exception {
+
+		HttpSession session = (HttpSession) request.getSession();
+		String email = request.getParameter("email");
+		String password = request.getParameter("password");
+		gamer = gamerDao.getGamerAtLogin(email, password);
+		if (gamer != null) {
+			session.setAttribute("loggedGamer", gamer);
+			mv.setViewName("home");
+		} else {
+			mv.addObject("error", "No GAMER found");
+			mv.setViewName("login");
+		}
+
+		return mv;
+	}
+
+	// on gamer registration
+	@PostMapping("/gamer/register.htm")
+	public String addGamerPOST(@ModelAttribute("gamer") Gamer gamer, UniversityDAO univDAO, BindingResult result,
+			SessionStatus status, GamerDAO gamerDao, ModelAndView mv, HttpServletRequest request) throws Exception {
+		gamer.setEmail(request.getParameter("email"));
+		gamer.setPassword(request.getParameter("password"));
+		gamer.setGamerName(request.getParameter("gamerName"));
+		int univId = Integer.parseInt(request.getParameter("univId"));
+
+		gamer.setUniversity(univDAO.getUniversity(univId));
+
+		gamerDao.saveGamer(gamer);
+		mv.setViewName("login");
+		if (result.hasErrors())
+//            return "gamer";
+			// instantiate Hibernate objects, and save user
+			try {
+			} catch (Exception e) {
+				System.out.println("Exception: " + e.getMessage());
+			}
+		// mark it complete
+		status.setComplete();
+//		return mv;
+		return "redirect:/gamer/login.htm";
+	}
+	
+    @GetMapping(value = "/gamer/logout.htm")
+	public String logout(HttpServletRequest request, ModelAndView mv,
+			@ModelAttribute("gamer") Gamer gamer) {
+		request.getSession(false).invalidate();
+//		HttpSession session = request.getSession(false);
+
+//		if (session != null) {
+//			gamer  = (Gamer) session.getAttribute("loggedGamer");
+//			if (gamer == null) {
+//				mv.addObject("message", "You Logged out!!!");
+//			} else {
+//				request.getSession(false).invalidate();
+//			}
+//
+//		}
+		return "redirect:/gamer/login.htm";
+
+	}
+    
+
+    
+	@GetMapping("/gamer/getAllGames.htm")
+	public ModelAndView gamesGET(@ModelAttribute("games") Games games, GamesDAO gamesDAO,
+			@ModelAttribute("gamer") Gamer gamer,
+			BindingResult result, SessionStatus status, ModelMap model, HttpServletRequest request, ModelAndView mv)
+			throws Exception {
+		
+		HttpSession session = request.getSession(false);
+		List<Games> gamesList = null;
+		if (session != null) {
+			gamer  = (Gamer) session.getAttribute("loggedGamer");
+			if (gamer != null) {
+			 gamesList = gamesDAO.getGamesByUniv(gamer.getUniversity().getUnivId());
+			} 
+
+		}
+		
+		System.out.println("");
+
+		mv.addObject("gamesList", gamesList);
+		mv.setViewName("games-list");
+
+		return mv;
+	}
+
+
+
+
+	@GetMapping("/gamer/addScores.htm")
+	public String addScoresPOST(ScoresDAO scoresDAO,
+			GamesDAO gamesDAO,
+			Scores score,
+			HttpServletRequest request,
+			BindingResult result, SessionStatus status) throws Exception {
+		
+		
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
+			score.setGamer(gamer);
+		}
+
+		int gameId = Integer.parseInt(request.getParameter("gameId"));
+		Games games = gamesDAO.getGame(gameId);
+		score.setGames(games);
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String bookingDate = request.getParameter("bookDate");
+		Date bookDate = new Date();
+		bookDate = dateFormat.parse(bookingDate);
+		score.setScoreDate(bookDate);
+		
+		int scored = Integer.parseInt(request.getParameter("score"));
+		score.setScore(scored);
+		
+		
+		
+		scoresDAO.saveScores(score);
+		
+		
+		
+		
+		if (result.hasErrors())
+			return "addScoresView";
+		// instantiate Hibernate objects, and save user
+		try {
+		} catch (Exception e) {
+			System.out.println("Exception: " + e.getMessage());
+		}
+		// mark it complete
+		status.setComplete();
+		return "redirect:/gamer/gamer-booking-list.htm";
+	}
+
+}

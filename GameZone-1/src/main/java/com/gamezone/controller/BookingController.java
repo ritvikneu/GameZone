@@ -75,10 +75,57 @@ public class BookingController {
 		return "redirect:/gamer/gamer-booking-list.htm";
 	}
 	
+	@GetMapping("/booking/modifyBooking.htm")
+	public String modifyBooking(ModelAndView mv, HttpServletRequest request, BookingDAO bookingDAO,
+			GamesDAO gamesDAO) throws Exception {
+
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
+
+		}
+		int bookingId = Integer.parseInt(request.getParameter("bookingId"));
+
+		Booking booking = bookingDAO.getBooking(bookingId);
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String bookingDate = request.getParameter("bookDate");
+		Date bookDate = new Date();
+		bookDate = dateFormat.parse(bookingDate);
+		booking.setBookDate(bookDate);
+		
+		bookingDAO.updateBookingByObj(booking);
+		
+		session.setAttribute("message", "Booking Modified");
+		return "redirect:/gamer/gamer-booking-list.htm";
+	}
+	
+	@GetMapping("/booking/modifyBookingScore.htm")
+	public String modifyBookingScore(ModelAndView mv, HttpServletRequest request, BookingDAO bookingDAO,
+			GamesDAO gamesDAO) throws Exception {
+
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
+
+		}
+		int bookingId = Integer.parseInt(request.getParameter("bookingId"));
+		
+		int scored = Integer.parseInt(request.getParameter("score"));
+		
+		Booking booking = bookingDAO.getBooking(bookingId);
+		booking.setScore(scored);
+		
+		
+		bookingDAO.updateBookingByObj(booking);
+		
+		session.setAttribute("message", "Booking Modified");
+		return "redirect:/gamer/gamer-booking-list.htm";
+	}
 	
 	
 
-	@PostMapping("/booking/add.htm")
+	@PostMapping("/booking/createBooking.htm")
 	public String addBookingPOST(GamesDAO gamesDAO, BookingDAO bookingDAO, BindingResult result,
 			HttpServletRequest request, ModelAndView mv, Model model, SessionStatus status) throws Exception {
 
@@ -89,9 +136,6 @@ public class BookingController {
 			booking.setGamer(gamer);
 		}
 		int gameId = Integer.parseInt(request.getParameter("gameId"));
-		System.out.println("Game ID----------------------------------");
-		System.out.println(gameId);
-		System.out.println("-----------------------------------");
 
 		Games games = gamesDAO.getGame(gameId);
 		int availSlots = games.getAvailSlots();
@@ -101,7 +145,6 @@ public class BookingController {
 		} else {
 
 			games.setAvailSlots(games.getAvailSlots() - 1);
-			gamesDAO.updateGamesByObj(games);
 			booking.setGames(games);
 
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -112,6 +155,8 @@ public class BookingController {
 			
 			booking.setSlot(request.getParameter("slot"));
 
+
+			gamesDAO.updateGamesByObj(games);
 			bookingDAO.saveBooking(booking);
 			session.setAttribute("message", "Booking success");
 			System.out.println();

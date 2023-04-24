@@ -38,6 +38,8 @@ public class Booking {
     
 	@Temporal(TemporalType.DATE)
 	private Date bookDate;
+	
+	private int score;
 
     public Booking() {
     }
@@ -90,7 +92,18 @@ public class Booking {
 	public void setBookDate(Date bookDate) {
 		this.bookDate = bookDate;
 	}
+
+
+	public int getScore() {
+		return score;
+	}
+
+
+	public void setScore(int score) {
+		this.score = score;
+	}
     
+	
     
     
 }

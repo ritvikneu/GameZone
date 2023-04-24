@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+<jsp:include page="home.jsp" />
     <html>
 
     <head>
-        <jsp:include page="home.jsp" />
         <!-- <title>Games List</title> -->
         <style>
             /* CSS for table */
@@ -29,7 +29,7 @@
             }
 
             .leaderboard {
-                animation: hide 5s forwards;
+                animation: hide 15s forwards;
             }
 
             @keyframes hide {
@@ -67,7 +67,7 @@
                                 data-gameName="${game.gameName}" class="btn">Create Booking</button>
                             <button onclick=showJoinBooking() class="btn">Join a Booking</button>
 
-                            <form action="/GameZone/games/getScoresForGame.htm" method="get">
+                            <form action="/GameZone/games/getLeaderBoard.htm" method="get">
                                 <input type="hidden" name="gameId" value="${game.gameId}">
                                 <button onclick=showLeaderboardForm(this) data-gameId="${game.gameId}"
                                     class="btn">Leaderboard</button>
@@ -83,9 +83,9 @@
         </div>
         <div class="create-booking" id="createBookingForm">
             <h2>Create Booking on <span id="selectedGameName"></span></h2>
-            <form action="/GameZone/booking/add.htm" method="post">
+            <form action="/GameZone/booking/createBooking.htm" method="post">
                 <label for="date">Date: </label>
-                <input type="date" id="bookDate" name="bookDate">
+                <input type="date" id="bookDate" name="bookDate" onchange=checkDate()>
                 <br>
                 <label for="slot">Slot:</label>
                 <select id="slot" name="slot">
@@ -154,24 +154,24 @@
 
 
 
-            //     function showLeaderboard(element) {
-            //         var gameId = element.getAttribute("data-gameId");
-            //     const xhr = new XMLHttpRequest();
-            //     xhr.open('GET', `/GameZone/games/getScoresForGame.htm?gameId=1`); // Update the URL to the correct endpoint
-            //     xhr.setRequestHeader('Content-Type', 'application/json');
-            //     xhr.onload = () => {
-            //         if (xhr.status === 200) {
-            //             const responseData = JSON.parse(xhr.responseText);
+                function checkDate(element) {
+                    var gameId = element.getAttribute("data-gameId");
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', `/GameZone/games/getScoresForGame.htm?gameId=${gameId}`); // Update the URL to the correct endpoint
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        const responseData = JSON.parse(xhr.responseText);
 
-            //             const leaderboardContainer = document.getElementById('leaderboardContainer');
-            //             leaderboardContainer.innerHTML = ''; // Clear the container before adding new content
-            //             leaderboardContainer.appendChild(createLeaderboardTable(responseData.scoreList));
-            //         } else {
-            //             console.error('Failed to fetch leaderboard data:', xhr.status, xhr.statusText);
-            //         }
-            //     };
-            //     xhr.send();
-            // }
+                        const leaderboardContainer = document.getElementById('leaderboardContainer');
+                        leaderboardContainer.innerHTML = ''; // Clear the container before adding new content
+                        leaderboardContainer.appendChild(createLeaderboardTable(responseData.scoreList));
+                    } else {
+                        console.error('Failed to fetch leaderboard data:', xhr.status, xhr.statusText);
+                    }
+                };
+                xhr.send();
+            }
 
             function createLeaderboardTable(scoreList) {
                 const table = document.createElement('table');
