@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.persistence.Query;
 
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Component;
 
 import com.gamezone.pojo.Booking;
@@ -53,6 +55,25 @@ public class BookingDAO extends DAO{
 			Query qObj = getSession().createQuery("from Booking where games_gameId=:gameId and score>0 order by score desc");
 			qObj.setParameter("gameId", gameId);
 			List<Booking> bookingList = qObj.getResultList();
+			commit();
+			close();
+			return bookingList;
+		}
+		
+		public List<Booking> getBookingForZoning(int gameId, int gamerId) {
+			close();
+			begin();
+//			Query qObj = getSession().createQuery("from Booking where games_gameId=:gameId and gamer_gamerId!=gamerId");
+//			qObj.setParameter("gameId", gameId);
+//			qObj.setParameter("gamerId", gamerId);
+//			List<Booking> bookingList = qObj.getResultList();
+			
+			Criteria crit = getSession().createCriteria(Booking.class,"booking");
+			crit.add(Restrictions.eq("booking.games.gameId", gameId));
+			crit.add(Restrictions.ne("booking.gamer.gamerId", gamerId));
+			crit.add(Restrictions.eq("zoneBooking", true));
+			List<Booking> bookingList = crit.list();
+			
 			commit();
 			close();
 			return bookingList;

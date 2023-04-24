@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<jsp:include page="home.jsp" />
+    <jsp:include page="home.jsp" />
     <html>
 
     <head>
@@ -29,6 +29,10 @@
             }
 
             .leaderboard {
+                animation: hide 15s forwards;
+            }
+
+            .message {
                 animation: hide 15s forwards;
             }
 
@@ -65,7 +69,13 @@
                             <input type="hidden" name="gameId" value="${game.gameId}">
                             <button onclick=showCreateBookingForm(this) data-gameId="${game.gameId}"
                                 data-gameName="${game.gameName}" class="btn">Create Booking</button>
-                            <button onclick=showJoinBooking() class="btn">Join a Booking</button>
+
+
+
+                            <form action="/GameZone/booking/joinBooking.htm" method="get">
+                                <input type="hidden" name="gameId" value="${game.gameId}">
+                                <button class="btn">Join a Booking</button>
+                            </form>
 
                             <form action="/GameZone/games/getLeaderBoard.htm" method="get">
                                 <input type="hidden" name="gameId" value="${game.gameId}">
@@ -89,12 +99,20 @@
                 <br>
                 <label for="slot">Slot:</label>
                 <select id="slot" name="slot">
-                    <option value="slot1">Morning</option>
-                    <option value="slot2">Afternoon</option>
-                    <option value="slot3">Evening</option>
-                    <option value="slot4">Night</option>
+                    <option value="Morning">Morning</option>
+                    <option value="Afternoon">Afternoon</option>
+                    <option value="Evening">Evening</option>
+                    <option value="Night">Night</option>
                 </select>
                 <br>
+
+                <label for="zoneBooking">Zone Booking:</label>
+                <input type="checkbox" id="zoneBooking" name="zoneBooking">
+                <br>
+                <label for="nameOfZone">Name of Zone:</label>
+                <input type="text" id="nameOfZone" name="nameOfZone">
+                <br>
+
                 <input type="hidden" name="gameId" id="gameId">
                 <input type="hidden" name="gameName" id="gameName">
                 <input type="submit" value="Submit" class="btn">
@@ -105,9 +123,7 @@
 
 
         <div class="leaderboard" id="leaderboardForm">
-
             <h2>Leaderboard on <span id="selectedGameName">"${scoreList[0].games.gameName}"</span></h2>
-
             <table>
                 <tr>
                     <th>Gamer ID</th>
@@ -154,8 +170,8 @@
 
 
 
-                function checkDate(element) {
-                    var gameId = element.getAttribute("data-gameId");
+            function checkDate(element) {
+                var gameId = element.getAttribute("data-gameId");
                 const xhr = new XMLHttpRequest();
                 xhr.open('GET', `/GameZone/games/getScoresForGame.htm?gameId=${gameId}`); // Update the URL to the correct endpoint
                 xhr.setRequestHeader('Content-Type', 'application/json');
@@ -172,38 +188,6 @@
                 };
                 xhr.send();
             }
-
-            function createLeaderboardTable(scoreList) {
-                const table = document.createElement('table');
-                const headerRow = document.createElement('tr');
-                const gamerIdHeader = document.createElement('th');
-                const scoreHeader = document.createElement('th');
-
-                gamerIdHeader.textContent = 'Gamer ID';
-                scoreHeader.textContent = 'Score';
-
-                headerRow.appendChild(gamerIdHeader);
-                headerRow.appendChild(scoreHeader);
-
-                table.appendChild(headerRow);
-
-                scoreList.forEach((score) => {
-                    const row = document.createElement('tr');
-                    const gamerIdCell = document.createElement('td');
-                    const scoreCell = document.createElement('td');
-
-                    gamerIdCell.textContent = score.gamerId;
-                    scoreCell.textContent = score.score;
-
-                    row.appendChild(gamerIdCell);
-                    row.appendChild(scoreCell);
-
-                    table.appendChild(row);
-                });
-
-                return table;
-            }
-
 
             // Function to set game ID and game name in the hidden fields of the create booking form
             function setGameDetails(gameId, gameName) {

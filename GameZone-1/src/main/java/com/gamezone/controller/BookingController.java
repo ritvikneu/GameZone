@@ -44,18 +44,70 @@ public class BookingController {
 //		return "game-booking";
 //	}
 
-	@GetMapping("/booking/bookgames.htm")
-	public ModelAndView addBookingGET(ModelAndView mv, HttpServletRequest request, UniversityDAO univDAO,
-			GamesDAO gamesDAO) throws Exception {
+//	@GetMapping("/booking/bookgames.htm")
+//	public ModelAndView addBookingGET(ModelAndView mv, HttpServletRequest request, UniversityDAO univDAO,
+//			GamesDAO gamesDAO) throws Exception {
+//
+//		List<University> univList = univDAO.getAllUniv();
+//		List<Games> gamesList = gamesDAO.getAllGames();
+//
+//		mv.addObject("univList", univList);
+//		mv.addObject("gamesList", gamesList);
+////		mv.setViewName("game-booking");
+//		mv.setViewName("univ-list");
+//		return mv;
+//	}
 
-		List<University> univList = univDAO.getAllUniv();
-		List<Games> gamesList = gamesDAO.getAllGames();
+	@PostMapping("/booking/createBooking.htm")
+	public String addBookingPOST(GamesDAO gamesDAO, BookingDAO bookingDAO, BindingResult result,
+			HttpServletRequest request, ModelAndView mv, Model model, SessionStatus status) throws Exception {
 
-		mv.addObject("univList", univList);
-		mv.addObject("gamesList", gamesList);
-//		mv.setViewName("game-booking");
-		mv.setViewName("univ-list");
-		return mv;
+		Booking booking = new Booking();
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
+			booking.setGamer(gamer);
+		}
+		int gameId = Integer.parseInt(request.getParameter("gameId"));
+
+		Games games = gamesDAO.getGame(gameId);
+		int availSlots = games.getAvailSlots();
+		if (availSlots < 1) {
+			session.setAttribute("message", "cannot make the booking as no slots available");
+
+		} else {
+
+			games.setAvailSlots(games.getAvailSlots() - 1);
+			booking.setGames(games);
+
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			String bookingDate = request.getParameter("bookDate");
+			Date bookDate = new Date();
+			bookDate = dateFormat.parse(bookingDate);
+			booking.setBookDate(bookDate);
+			
+			booking.setSlot(request.getParameter("slot"));
+			
+			String zoneBook = request.getParameter("zoneBooking");
+			if(zoneBook.equals("on")) {
+				boolean zoneBooking = true;
+			    booking.setZoneBooking(zoneBooking);
+			}
+		    
+		    
+
+		    String nameOfZone = request.getParameter("nameOfZone");
+		    booking.setNameOfZone(nameOfZone);
+
+
+			gamesDAO.updateGamesByObj(games);
+			bookingDAO.saveBooking(booking);
+			session.setAttribute("message", "Booking success");
+			System.out.println();
+
+		}
+//		mv.setViewName("games-list");
+		return "redirect:/gamer/getAllGames.htm";
 	}
 
 	@PostMapping("/booking/cancelBooking.htm")
@@ -100,6 +152,57 @@ public class BookingController {
 		return "redirect:/gamer/gamer-booking-list.htm";
 	}
 	
+	@GetMapping("/booking/joinBooking.htm")
+	public String joinBooking(ModelAndView mv, HttpServletRequest request, BookingDAO bookingDAO,
+			GamesDAO gamesDAO,
+			Gamer gamer) throws Exception {
+		
+		
+
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			gamer = (Gamer) session.getAttribute("loggedGamer");
+			
+
+		}
+		int gameId = Integer.parseInt(request.getParameter("gameId"));
+
+		List<Booking> bookingList = bookingDAO.getBookingForZoning(gameId,gamer.getGamerId());
+		
+//		Set<Gamer> zoners = booking.getZoners();
+//		zoners.add(gamer);
+//		
+//		booking.setZoners(zoners);
+//			bookingDAO.updateBookingByObj(booking);
+		request.setAttribute("bookingList", bookingList);
+		
+		return "join-booking";
+	}
+	
+	@GetMapping("/booking/gamer/joinBooking.htm")
+	public String gamerJoinBooking(ModelAndView mv, HttpServletRequest request, BookingDAO bookingDAO,
+			GamesDAO gamesDAO,
+			Gamer gamer) throws Exception {
+		
+	
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			gamer = (Gamer) session.getAttribute("loggedGamer");
+			
+
+		}
+		int bookingId = Integer.parseInt(request.getParameter("bookingId"));
+
+		Booking booking = bookingDAO.getBooking(bookingId);
+		
+		List<Gamer> zoners = booking.getZoners();
+		zoners.add(gamer);
+		
+		booking.setZoners(zoners);
+			bookingDAO.updateBookingByObj(booking);
+			return "redirect:/booking/joinBooking.htm";
+	}
+	
 	@GetMapping("/booking/modifyBookingScore.htm")
 	public String modifyBookingScore(ModelAndView mv, HttpServletRequest request, BookingDAO bookingDAO,
 			GamesDAO gamesDAO) throws Exception {
@@ -125,46 +228,6 @@ public class BookingController {
 	
 	
 
-	@PostMapping("/booking/createBooking.htm")
-	public String addBookingPOST(GamesDAO gamesDAO, BookingDAO bookingDAO, BindingResult result,
-			HttpServletRequest request, ModelAndView mv, Model model, SessionStatus status) throws Exception {
-
-		Booking booking = new Booking();
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
-			booking.setGamer(gamer);
-		}
-		int gameId = Integer.parseInt(request.getParameter("gameId"));
-
-		Games games = gamesDAO.getGame(gameId);
-		int availSlots = games.getAvailSlots();
-		if (availSlots < 1) {
-			session.setAttribute("message", "cannot make the booking as no slots available");
-
-		} else {
-
-			games.setAvailSlots(games.getAvailSlots() - 1);
-			booking.setGames(games);
-
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			String bookingDate = request.getParameter("bookDate");
-			Date bookDate = new Date();
-			bookDate = dateFormat.parse(bookingDate);
-			booking.setBookDate(bookDate);
-			
-			booking.setSlot(request.getParameter("slot"));
-
-
-			gamesDAO.updateGamesByObj(games);
-			bookingDAO.saveBooking(booking);
-			session.setAttribute("message", "Booking success");
-			System.out.println();
-
-		}
-//		mv.setViewName("games-list");
-		return "redirect:/gamer/getAllGames.htm";
-	}
 
 	@GetMapping("/gamer/gamer-booking-list.htm")
 	public ModelAndView viewGamerBookingList(GamesDAO gamesDAO, BookingDAO bookingDAO, BindingResult result,
