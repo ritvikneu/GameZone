@@ -44,6 +44,7 @@
                             <c:if test="${booking.bookDate gt now}">
                                 <form action="/GameZone/booking/gamer/joinBooking.htm" method="get"
                                     style="display: inline;">
+                                    <input type="hidden" name="gameId" value="${booking.games.gameId}">
                                     <input type="hidden" name="bookingId" value="${booking.bookingId}">
                                     <button type="submit" value="Join Booking">Join Booking</button>
                                 </form>

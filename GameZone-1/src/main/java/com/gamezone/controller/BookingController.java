@@ -192,6 +192,7 @@ public class BookingController {
 
 		}
 		int bookingId = Integer.parseInt(request.getParameter("bookingId"));
+		int gameId = Integer.parseInt(request.getParameter("gameId"));
 
 		Booking booking = bookingDAO.getBooking(bookingId);
 		
@@ -200,7 +201,8 @@ public class BookingController {
 		
 		booking.setZoners(zoners);
 			bookingDAO.updateBookingByObj(booking);
-			return "redirect:/booking/joinBooking.htm";
+			String joinBooking = "redirect:/booking/joinBooking.htm?gameId="+gameId;
+			return joinBooking;
 	}
 	
 	@GetMapping("/booking/modifyBookingScore.htm")
