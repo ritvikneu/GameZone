@@ -123,7 +123,7 @@
 
 
         <div class="leaderboard" id="leaderboardForm">
-            <h2>Leaderboard on <span id="selectedGameName">"${scoreList[0].games.gameName}"</span></h2>
+            <h2>Leaderboard on <span id="selectedGameName">"${scoreList[0].bookingId.games.gameName}"</span></h2>
             <table>
                 <tr>
                     <th>Gamer ID</th>
@@ -132,7 +132,7 @@
                 </tr>
                 <c:forEach var="score" items="${scoreList}">
                     <tr>
-                        <td>${score.gamer.gamerName}</td>
+                        <td>${score.bookingId.gamer.gamerName}</td>
                         <td>${score.score}</td>
                     </tr>
                 </c:forEach>

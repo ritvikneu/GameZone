@@ -33,19 +33,19 @@
                 </tr>
                 <c:forEach var="booking" items="${bookingList}">
                     <tr>
-                        <td>${booking.games.gameName}</td>
-                        <td>${booking.gamer.gamerName}</td>
-                        <td>${booking.bookingId}</td>
-                        <td>${booking.bookDate}</td>
+                        <td>${booking.bookingId.games.gameName}</td>
+                        <td>${booking.bookingId.gamer.gamerName}</td>
+                        <td>${booking.bookingId.bookDate}</td>
                         <td>${booking.slot}</td>
                         <td>
                           
                             <jsp:useBean id="now" class="java.util.Date" />
-                            <c:if test="${booking.bookDate gt now}">
+                            <c:if test="${booking.bookingId.bookDate gt now}">
                                 <form action="/GameZone/booking/gamer/joinBooking.htm" method="get"
                                     style="display: inline;">
-                                    <input type="hidden" name="gameId" value="${booking.games.gameId}">
-                                    <input type="hidden" name="bookingId" value="${booking.bookingId}">
+                                    <input type="hidden" name="gamerId" value="${booking.bookingId.gamer.gamerId}">
+                                    <input type="hidden" name="gameId" value="${booking.bookingId.games.gameId}">
+                                    <input type="date" id="currBookDate" name="currBookDate" value="${booking.bookingId.bookDate}" hidden>
                                     <button type="submit" value="Join Booking">Join Booking</button>
                                 </form>
 

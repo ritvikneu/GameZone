@@ -8,6 +8,7 @@ package com.gamezone.pojo;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -30,6 +31,7 @@ public class Scores {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int scoreId;
+	
 
     @ManyToOne
     @JoinColumn(name = "gamerId")

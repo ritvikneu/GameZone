@@ -1,6 +1,7 @@
 
 package com.gamezone.pojo;
 
+import java.util.ArrayList;
 //import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -13,6 +14,7 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -38,30 +40,19 @@ import org.springframework.stereotype.Component;
 @Entity
 @Table(name="Booking")
 public class Booking {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int bookingId;
-    @ManyToOne
-    private Gamer gamer; 
-    @ManyToOne 
-    private Games games; 
-//    private String location;
+	   
+    @EmbeddedId
+    private BookingId bookingId; // Represents the composite primary key
+
     private String slot; 
-    
-	@Temporal(TemporalType.DATE)
-	private Date bookDate;
-	
 	private int score;
 	
 	private boolean zoneBooking;
 	
 	private String nameOfZone;
-	
-//	private SortedMap<Gamer> Gamer;
-
-	
-	@ManyToMany(cascade = CascadeType.ALL)
-	private Set<Gamer> zoners = new HashSet<Gamer>();
+		
+	@ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+	private List<Gamer> zoners = new ArrayList<>();
 	
     public Booking() {
     }
@@ -75,44 +66,13 @@ public class Booking {
         this.slot = slot;
     }
 
-
-	public int getBookingId() {
+	public BookingId getBookingId() {
 		return bookingId;
 	}
 
 
-	public void setBookingId(int bookingId) {
+	public void setBookingId(BookingId bookingId) {
 		this.bookingId = bookingId;
-	}
-
-
-	public Gamer getGamer() {
-		return gamer;
-	}
-
-
-	public void setGamer(Gamer gamer) {
-		this.gamer = gamer;
-	}
-
-
-	public Games getGames() {
-		return games;
-	}
-
-
-	public void setGames(Games games) {
-		this.games = games;
-	}
-
-
-	public Date getBookDate() {
-		return bookDate;
-	}
-
-
-	public void setBookDate(Date bookDate) {
-		this.bookDate = bookDate;
 	}
 
 
@@ -146,14 +106,16 @@ public class Booking {
 	}
 
 
-	public Set<Gamer> getZoners() {
+	public List<Gamer> getZoners() {
 		return zoners;
 	}
 
 
-	public void setZoners(Set<Gamer> zoners) {
+	public void setZoners(List<Gamer> zoners) {
 		this.zoners = zoners;
 	}
+
+
 
     
 }

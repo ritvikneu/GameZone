@@ -1,6 +1,8 @@
 package com.gamezone.dao;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Query;
 
@@ -9,7 +11,10 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Component;
 
 import com.gamezone.pojo.Booking;
+import com.gamezone.pojo.BookingId;
 import com.gamezone.pojo.Games;
+
+import net.bytebuddy.asm.Advice.OffsetMapping.Sort;
 
 @Component
 public class BookingDAO extends DAO{
@@ -37,13 +42,54 @@ public class BookingDAO extends DAO{
 			close();
 			return bookingList;
 		}
+		
+		public Booking getBookingById(int gamerId,int gameId,Date currBookDate ) {
+			close();
+			begin();
+			
+			Criteria crit = getSession().createCriteria(Booking.class,"booking");
+			crit.add(Restrictions.eq("booking.bookingId.gamer.gamerId", gamerId));
+			crit.add(Restrictions.eq("booking.bookingId.games.gameId", gameId));
+			crit.add(Restrictions.eq("booking.bookingId.bookDate", currBookDate));
+			Booking booking = (Booking)crit.uniqueResult();
+
+//			List<Booking> bookingList = crit.list();
+			
+			
+			commit();
+			close();
+			return booking;
+		}
+		
+		public List<Booking> getZoners(int gamerId,int gameId,Date currBookDate ) {
+			close();
+			begin();
+			
+			Criteria crit = getSession().createCriteria(Booking.class,"booking");
+			crit.add(Restrictions.eq("booking.bookingId.gamer.gamerId", gamerId));
+			crit.add(Restrictions.eq("booking.bookingId.games.gameId", gameId));
+			crit.add(Restrictions.eq("booking.bookingId.bookDate", currBookDate));
+	
+
+			List<Booking> bookingList = crit.list();
+			
+			
+			commit();
+			close();
+			return bookingList;
+		}
 
 		public List<Booking> getBookingByGamer(int gamerId) {
 			close();
 			begin();
-			Query qObj = getSession().createQuery("from Booking where gamer_gamerId=:gamerId ");
-			qObj.setParameter("gamerId", gamerId);
-			List<Booking> bookingList = qObj.getResultList();
+			
+			Criteria crit = getSession().createCriteria(Booking.class,"booking");
+			crit.add(Restrictions.eq("booking.bookingId.gamer.gamerId", gamerId));
+			crit.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY); // Add this line to fetch only unique entries
+		    
+			List<Booking> bookingList = crit.list();
+			
+			
 			commit();
 			close();
 			return bookingList;
@@ -52,9 +98,16 @@ public class BookingDAO extends DAO{
 		public List<Booking> getBookingByGames(int gameId) {
 			close();
 			begin();
-			Query qObj = getSession().createQuery("from Booking where games_gameId=:gameId and score>0 order by score desc");
-			qObj.setParameter("gameId", gameId);
-			List<Booking> bookingList = qObj.getResultList();
+//			Query qObj = getSession().createQuery("from Booking where games_gameId=:gameId and score>0 order by score desc");
+//			qObj.setParameter("gameId", gameId);
+//			List<Booking> bookingList = qObj.getResultList();
+
+			Criteria crit = getSession().createCriteria(Booking.class,"booking");
+			crit.add(Restrictions.eq("booking.bookingId.games.gameId", gameId));
+			crit.add(Restrictions.gt("booking.score",0));
+			crit.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+			List<Booking> bookingList = crit.list();
+			
 			commit();
 			close();
 			return bookingList;
@@ -63,15 +116,13 @@ public class BookingDAO extends DAO{
 		public List<Booking> getBookingForZoning(int gameId, int gamerId) {
 			close();
 			begin();
-//			Query qObj = getSession().createQuery("from Booking where games_gameId=:gameId and gamer_gamerId!=gamerId");
-//			qObj.setParameter("gameId", gameId);
-//			qObj.setParameter("gamerId", gamerId);
-//			List<Booking> bookingList = qObj.getResultList();
 			
 			Criteria crit = getSession().createCriteria(Booking.class,"booking");
-			crit.add(Restrictions.eq("booking.games.gameId", gameId));
-			crit.add(Restrictions.ne("booking.gamer.gamerId", gamerId));
+			crit.add(Restrictions.eq("booking.bookingId.games.gameId", gameId));
+			crit.add(Restrictions.ne("booking.bookingId.gamer.gamerId", gamerId));
 			crit.add(Restrictions.eq("zoneBooking", true));
+			crit.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY); // Add this line to fetch only unique entries
+		    
 			List<Booking> bookingList = crit.list();
 			
 			commit();

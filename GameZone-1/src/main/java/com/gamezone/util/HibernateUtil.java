@@ -10,6 +10,8 @@ import org.hibernate.service.ServiceRegistry;
 import org.springframework.stereotype.Component;
 
 import com.gamezone.pojo.Booking;
+import com.gamezone.pojo.BookingId;
+import com.gamezone.pojo.GameBooking;
 import com.gamezone.pojo.Gamer;
 import com.gamezone.pojo.Games;
 import com.gamezone.pojo.Scores;
@@ -29,7 +31,7 @@ public class HibernateUtil {
 	                // Hibernate settings equivalent to hibernate.cfg.xml's properties
 	                Properties settings = new Properties();
 	                settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
-	                settings.put(Environment.URL, "jdbc:mysql://localhost:3306/zone2db?createDatabaseIfNotExist=true");
+	                settings.put(Environment.URL, "jdbc:mysql://localhost:3306/zone3db?createDatabaseIfNotExist=true");
 	                settings.put(Environment.USER, "root");
 	                settings.put(Environment.PASS, "Jlabs@2021");
 	                settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL8Dialect");
@@ -45,6 +47,8 @@ public class HibernateUtil {
 	                configuration.addAnnotatedClass(Gamer.class);
 	                configuration.addAnnotatedClass(Games.class);
 	                configuration.addAnnotatedClass(Booking.class);
+//	                configuration.addAnnotatedClass(GameBooking.class);
+	                configuration.addAnnotatedClass(BookingId.class);
 	                configuration.addAnnotatedClass(Scores.class);
 	                configuration.addAnnotatedClass(University.class);
 

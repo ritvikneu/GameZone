@@ -5,10 +5,12 @@
 
 package com.gamezone.controller;
 
+import com.gamezone.dao.BookingDAO;
 import com.gamezone.dao.GamerDAO;
 import com.gamezone.dao.GamesDAO;
 import com.gamezone.dao.ScoresDAO;
 import com.gamezone.dao.UniversityDAO;
+import com.gamezone.pojo.Booking;
 import com.gamezone.pojo.Gamer;
 import com.gamezone.pojo.Games;
 import com.gamezone.pojo.Scores;
@@ -22,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -163,7 +166,19 @@ public class GamerController {
 
 		return mv;
 	}
+	
+	@GetMapping("/gamer/gamer-booking-list.htm")
+	public ModelAndView viewGamerBookingList(GamesDAO gamesDAO, BookingDAO bookingDAO, BindingResult result,
+			HttpServletRequest request, ModelAndView mv, Model model, SessionStatus status) {
+		mv = new ModelAndView("gamer-booking-list");
+		HttpSession session = request.getSession(false);
+		Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
 
+		List<Booking> bookingList = bookingDAO.getBookingByGamer(gamer.getGamerId());
+		mv.addObject("bookingList", bookingList);
+		mv.setViewName("gamer-booking-list");
+		return mv;
+	}
 
 
 
