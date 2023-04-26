@@ -174,7 +174,12 @@ public String addGamerGET(ModelMap model, Gamer gamer, GamerDAO gamerDao, Univer
 		Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
 
 		List<Booking> bookingList = bookingDAO.getBookingByGamer(gamer.getGamerId());
+		List<Booking> myZoneList = bookingDAO.getBookingByZoner(gamer.getGamerId());
+		
+		
+		
 		mv.addObject("bookingList", bookingList);
+		mv.addObject("myZoneList", myZoneList);
 		mv.setViewName("gamer-booking-list");
 		return mv;
 	}

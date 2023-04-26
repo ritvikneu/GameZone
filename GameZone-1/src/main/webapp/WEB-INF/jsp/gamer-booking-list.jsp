@@ -161,6 +161,28 @@
                 </table>
             </div>
 
+            <h3>My Zones</h3>
+            <div class="myZones" id="myZones">
+                <table>
+                    <tr>
+                        <th>Game Name</th>
+                    <th>Gamer Name</th>
+                    <th>Zone Name</th>
+                    <th>Booking Date</th>
+                        <!-- Add more columns as needed -->
+                    </tr>
+                    <c:forEach var="booking" items="${myZoneList}">
+                        <tr>
+                            <td>${booking.bookingId.games.gameName}</td>
+                            <td>${booking.bookingId.gamer.gamerName}</td>
+                            <td>${booking.nameOfZone}</td>
+                            <td>${booking.bookingId.bookDate}</td>
+                            <!-- Display other properties of Gamer object as needed -->
+                        </tr>
+                    </c:forEach>
+                </table>
+            </div>
+
             <script>
 
                 function showModifyBookingForm(element) {
