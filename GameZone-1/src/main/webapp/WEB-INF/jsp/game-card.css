@@ -1,0 +1,74 @@
+main-container{
+    border-radius: 5px;
+    padding: 5px;
+
+    display: flex;
+    flex-direction: row;
+
+    /* align-content: center; */
+}
+
+.add-image{
+    width: 50%;
+}
+
+.side-bar{
+    height: 80%;
+    width: 10%;
+    background-color: aquamarine;
+    align-items: center;
+}
+
+.reminder-space{
+    height: 80%;
+    width: 90%;
+    background-color: rgb(213, 230, 245);
+   
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap:20px;
+   
+}
+
+.rem-card{
+  flex: 0 0 300px;
+  box-shadow: 5px 12px 9px 5px rgb(0, 0, 0, 0.2);
+  height: 240px;
+  width:150px;
+  border-radius: 7px;
+  margin: 10px;
+  padding: 10px;
+}
+
+.rem-card input{ 
+border: none;
+border-radius: 2px;
+background-color: rgb(213, 230, 245);
+width: 95%;
+ 
+}
+
+.name-text{
+    font-size: larger;
+}
+
+.details-text{
+    font-size: small;
+}
+
+.time-text{
+    font-size: large;
+}
+
+.rem-buttons{
+    display: flex;
+    flex-direction: row;
+}
+
+checkbox {
+    position: absolute;
+    bottom: 8px;
+    right: 16px;
+    margin-top: -20px;
+}

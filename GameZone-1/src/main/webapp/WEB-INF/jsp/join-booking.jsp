@@ -11,8 +11,38 @@
 
 
             <style>
+                table {
+                    width: 70%;
+                    border-collapse: collapse;
+                }
+
+                th,
+                td {
+                    border: 1px solid black;
+                    padding: 8px;
+                    text-align: left;
+                }
+
+                th {
+                    background-color: #f2f2f2;
+                }
+
                 .modify-booking {
                     display: none;
+                }
+
+                .message {
+                    animation: hide 15s forwards;
+                }
+
+                @keyframes hide {
+                    0% {
+                        opacity: 1;
+                    }
+
+                    100% {
+                        opacity: 0;
+                    }
                 }
             </style>
 
@@ -24,8 +54,8 @@
             <table>
                 <tr>
                     <th>Game Name</th>
+                    <th>Zone Name</th>
                     <th>Booked by Gamer</th>
-                    <th>Booking ID</th>
                     <th>Booking Date</th>
                     <th>Slot Time</th>
                     <th>Actions</th>
@@ -34,18 +64,20 @@
                 <c:forEach var="booking" items="${bookingList}">
                     <tr>
                         <td>${booking.bookingId.games.gameName}</td>
+                        <td>${booking.nameOfZone}</td>
                         <td>${booking.bookingId.gamer.gamerName}</td>
                         <td>${booking.bookingId.bookDate}</td>
                         <td>${booking.slot}</td>
                         <td>
-                          
+
                             <jsp:useBean id="now" class="java.util.Date" />
-                            <c:if test="${booking.bookingId.bookDate gt now}">
+                            <c:if test="${booking.bookingId.bookDate gt now && booking.zoneBooking eq true}">
                                 <form action="/GameZone/booking/gamer/joinBooking.htm" method="get"
                                     style="display: inline;">
                                     <input type="hidden" name="gamerId" value="${booking.bookingId.gamer.gamerId}">
                                     <input type="hidden" name="gameId" value="${booking.bookingId.games.gameId}">
-                                    <input type="date" id="currBookDate" name="currBookDate" value="${booking.bookingId.bookDate}" hidden>
+                                    <input type="date" id="currBookDate" name="currBookDate"
+                                        value="${booking.bookingId.bookDate}" hidden>
                                     <button type="submit" value="Join Booking">Join Booking</button>
                                 </form>
 
@@ -55,8 +87,11 @@
                     </tr>
                 </c:forEach>
             </table>
+            <div class="message">
+                <p> ${sessionScope.message}</p>
+            </div>
 
-            <div class="modify-booking" id="modifyBookingForm">
+            <!-- <div class="modify-booking" id="modifyBookingForm">
                 <h2>Modify Booking <span id="selectedGameName"></span></h2>
                 <form action="/GameZone/booking/modifyBooking.htm" method="get">
                     <label for="date">Date: </label>
@@ -106,9 +141,7 @@
                     }
                 }
 
-            </script>
+            </script> -->
         </body>
 
         </html>
-
-

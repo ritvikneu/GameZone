@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
 
 import com.gamezone.dao.BookingDAO;
 import com.gamezone.dao.GamerDAO;
@@ -20,13 +21,16 @@ import com.gamezone.dao.GamesDAO;
 import com.gamezone.dao.ScoresDAO;
 import com.gamezone.dao.UniversityDAO;
 import com.gamezone.pojo.Booking;
+import com.gamezone.pojo.Gamer;
 import com.gamezone.pojo.Games;
 import com.gamezone.pojo.Scores;
 import com.gamezone.pojo.University;
+import com.gamezone.view.PdfView;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class AdminController {
@@ -43,6 +47,13 @@ public class AdminController {
 		mv.setViewName("univ-games");
 		return mv;
 	}
+	@GetMapping("/admin/login")
+	public ModelAndView adminLogin(ModelMap model, UniversityDAO univDAO, ModelAndView mv) throws Exception {
+		
+		mv.setViewName("admin-login");
+		return mv;
+	}
+
 
 	@PostMapping("/admin/adduniv.htm")
 	public ModelAndView addUnivPOST(@ModelAttribute("university") University university, UniversityDAO univDAO,
@@ -58,11 +69,11 @@ public class AdminController {
 		return mv;
 	}
 
-	@GetMapping("/admin/getGamesList")
-	@ResponseBody
-	public List<Games> getGamesList(@RequestParam("univId") int univId, GamesDAO gamesDAO) {
-		return gamesDAO.getGamesByUniv(univId);
-	}
+//	@GetMapping("/admin/getGamesList")
+//	@ResponseBody
+//	public List<Games> getGamesList(@RequestParam("univId") int univId, GamesDAO gamesDAO) {
+//		return gamesDAO.getGamesByUniv(univId);
+//	}
 
 	@PostMapping("/admin/addgames.htm")
 	public String addGamesPOST(@ModelAttribute("games") Games games, UniversityDAO univDAO, GamesDAO gamesDao,
@@ -127,6 +138,29 @@ public class AdminController {
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/gamer/getAllGames.htm");
 	    dispatcher.forward(request, response);
 
+	}
+	@GetMapping("/admin/getAllGames.htm")
+	public ModelAndView gamesGET(@ModelAttribute("games") Games games, GamesDAO gamesDAO,
+			@ModelAttribute("gamer") Gamer gamer,
+			BindingResult result, SessionStatus status, ModelMap model, HttpServletRequest request, ModelAndView mv)
+			throws Exception {
+		
+		List<Games> gamesList = gamesDAO.getAllGames();;
+	
+		
+		System.out.println("");
+
+		mv.addObject("gamesList", gamesList);
+		mv.setViewName("game-card");
+
+		return mv;
+	}
+	
+	@GetMapping("/games/pdf.pdf")
+	public View handleRequestPdf() {
+		View view = new PdfView();
+		
+		return view;
 	}
 
 

@@ -74,13 +74,17 @@ public class BookingController {
 			booking.setSlot(request.getParameter("slot"));
 
 			String zoneBook = request.getParameter("zoneBooking");
-			if (zoneBook.equals("on")) {
+			if (zoneBook!=null && zoneBook.equals("on")) {
 				boolean zoneBooking = true;
 				booking.setZoneBooking(zoneBooking);
+				String nameOfZone = request.getParameter("nameOfZone");
+				booking.setNameOfZone(nameOfZone);
+			}else {
+				booking.setZoneBooking(false);
+				booking.setNameOfZone("Not a Zone");
+				
 			}
 
-			String nameOfZone = request.getParameter("nameOfZone");
-			booking.setNameOfZone(nameOfZone);
 
 			gamesDAO.updateGamesByObj(games);
 			bookingDAO.saveBooking(booking);
@@ -93,23 +97,40 @@ public class BookingController {
 	}
 
 	@PostMapping("/booking/cancelBooking.htm")
-	public String cancelBooking(ModelAndView mv, HttpServletRequest request, BookingDAO bookingDAO, GamesDAO gamesDAO)
+	public String cancelBooking(ModelAndView mv, 
+			HttpServletRequest request, BookingDAO bookingDAO,
+			Booking booking,
+			Gamer gamer, GamesDAO gamesDAO)
 			throws Exception {
-
+		BookingId bookingId = new BookingId();
 		HttpSession session = request.getSession(false);
 		if (session != null) {
-			Gamer gamer = (Gamer) session.getAttribute("loggedGamer");
-
+			 gamer = (Gamer) session.getAttribute("loggedGamer");
+			
 		}
-		int gameId = Integer.parseInt(request.getParameter("gameId"));
 
+		int gameId = Integer.parseInt(request.getParameter("gameId"));
 		Games games = gamesDAO.getGame(gameId);
 
-		int bookingId = Integer.parseInt(request.getParameter("bookingId"));
-		Booking booking = bookingDAO.getBooking(bookingId);
-		bookingDAO.deleteBooking(booking);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String bookingDate = request.getParameter("bookDate");
+		Date bookDate = new Date();
+		bookDate  = dateFormat.parse(bookingDate);
+		
+//		bookingId.setBookDate(bookDate);
 
-		session.setAttribute("message", "Cancelled Booking");
+		booking = bookingDAO.getBookingById(gamer.getGamerId(),games.getGameId(),bookDate);
+		bookingId = booking.getBookingId();
+		if(booking.getZoners().isEmpty()) {
+
+			bookingDAO.deleteBooking(booking);
+			session.setAttribute("message", "Booking Cancelled");
+		}else {
+			session.setAttribute("message", "cannot canel booking as Gamers are in Zone");
+			
+		}
+		
+
 		return "redirect:/gamer/gamer-booking-list.htm";
 	}
 
@@ -140,12 +161,18 @@ public class BookingController {
 
 		booking = bookingDAO.getBookingById(gamer.getGamerId(),games.getGameId(),currBookDate);
 		bookingId = booking.getBookingId();
-		bookingDAO.deleteBooking(booking);
-		
-		bookingId.setBookDate(bookDate);
-		bookingDAO.saveBooking(booking);
+		if(booking.getZoners().isEmpty()) {
 
-		session.setAttribute("message", "Booking Modified");
+			bookingDAO.deleteBooking(booking);
+			bookingId.setBookDate(bookDate);
+			bookingDAO.saveBooking(booking);
+			session.setAttribute("message", "Booking Modified");
+		}else {
+			session.setAttribute("message", "Gamers have joined Booking cant Modify");
+			
+		}
+		
+
 		return "redirect:/gamer/gamer-booking-list.htm";
 	}
 
@@ -195,6 +222,7 @@ public class BookingController {
 		zoners.add(gamer);
 
 		booking.setZoners(zoners);
+		session.setAttribute("message", "You have joined the Zone");
 		bookingDAO.updateBookingByObj(booking);
 		String joinBooking = "redirect:/booking/joinBooking.htm?gameId=" + gameId;
 		return joinBooking;
@@ -218,6 +246,7 @@ public class BookingController {
 		String bookingDate = request.getParameter("bookDate");
 		Date bookDate = new Date();
 		bookDate  = dateFormat.parse(bookingDate);
+		
 		List<Booking> zonerList =  bookingDAO.getZoners(gamerId, gameId, bookDate);
 
 		request.setAttribute("zonerList", zonerList);

@@ -9,7 +9,7 @@
         <style>
             /* CSS for table */
             table {
-                width: 100%;
+                width: 70%;
                 border-collapse: collapse;
             }
 
@@ -70,8 +70,6 @@
                             <button onclick=showCreateBookingForm(this) data-gameId="${game.gameId}"
                                 data-gameName="${game.gameName}" class="btn">Create Booking</button>
 
-
-
                             <form action="/GameZone/booking/joinBooking.htm" method="get">
                                 <input type="hidden" name="gameId" value="${game.gameId}">
                                 <button class="btn">Join a Booking</button>
@@ -88,7 +86,7 @@
                 </c:forEach>
             </table>
         </div>
-        <div>
+        <div class="message">
             <p> ${sessionScope.message}</p>
         </div>
         <div class="create-booking" id="createBookingForm">
@@ -112,6 +110,7 @@
                 <label for="nameOfZone">Name of Zone:</label>
                 <input type="text" id="nameOfZone" name="nameOfZone">
                 <br>
+                <p id="error-msg"></p>
 
                 <input type="hidden" name="gameId" id="gameId">
                 <input type="hidden" name="gameName" id="gameName">
@@ -134,6 +133,34 @@
                     <tr>
                         <td>${score.bookingId.gamer.gamerName}</td>
                         <td>${score.score}</td>
+                    </tr>
+                </c:forEach>
+            </table>
+        </div>
+
+        <div>
+            Games from Other universities
+            <table>
+                <tr>
+                    <th>Game ID</th>
+                    <th>Game Name</th>
+                    <th>Location</th>
+                    <th>Available Slots</th>
+                    <th>Actions</th>
+                </tr>
+                <c:forEach var="game" items="${gamesFromOtherUniv}">
+                    <tr>
+                        <td>${game.gameId}</td>
+                        <td>${game.gameName}</td>
+                        <td>${game.location}</td>
+                        <td>${game.availSlots}</td>
+                        <td>
+                            <form action="/GameZone/games/pdf.pdf">
+                                <input type="hidden" name="gameId" value="${game.gameId}">
+                                <button data-gameId="${game.gameId}"
+                                    data-gameName="${game.gameName}" class="btn">Request Booking</button>
+                            </form>
+                        </td>
                     </tr>
                 </c:forEach>
             </table>
@@ -171,22 +198,17 @@
 
 
             function checkDate(element) {
-                var gameId = element.getAttribute("data-gameId");
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', `/GameZone/games/getScoresForGame.htm?gameId=${gameId}`); // Update the URL to the correct endpoint
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                xhr.onload = () => {
-                    if (xhr.status === 200) {
-                        const responseData = JSON.parse(xhr.responseText);
-
-                        const leaderboardContainer = document.getElementById('leaderboardContainer');
-                        leaderboardContainer.innerHTML = ''; // Clear the container before adding new content
-                        leaderboardContainer.appendChild(createLeaderboardTable(responseData.scoreList));
-                    } else {
-                        console.error('Failed to fetch leaderboard data:', xhr.status, xhr.statusText);
-                    }
-                };
-                xhr.send();
+                
+            var selectedDate = new Date(document.getElementById("bookDate").value);
+            var currentDate = new Date();
+            if (selectedDate < currentDate) {
+                document.getElementById("error-msg").innerHTML = "Selected date cannot be less than today's date.";
+                document.getElementById("createBookingForm").querySelector("input[type='submit']").disabled = true;
+            } else {
+                document.getElementById("error-msg").innerHTML = "";
+                document.getElementById("createBookingForm").querySelector("input[type='submit']").disabled = false;
+            }
+       
             }
 
             // Function to set game ID and game name in the hidden fields of the create booking form

@@ -16,6 +16,7 @@ import com.gamezone.pojo.Gamer;
 import com.gamezone.pojo.Games;
 import com.gamezone.pojo.Scores;
 import com.gamezone.pojo.University;
+import com.gamezone.pojo.User;
 
 //import com.game.pojo.*;
 
@@ -48,6 +49,7 @@ public class HibernateUtil {
 	                configuration.addAnnotatedClass(Games.class);
 	                configuration.addAnnotatedClass(Booking.class);
 //	                configuration.addAnnotatedClass(GameBooking.class);
+	                configuration.addAnnotatedClass(User.class);
 	                configuration.addAnnotatedClass(BookingId.class);
 	                configuration.addAnnotatedClass(Scores.class);
 	                configuration.addAnnotatedClass(University.class);

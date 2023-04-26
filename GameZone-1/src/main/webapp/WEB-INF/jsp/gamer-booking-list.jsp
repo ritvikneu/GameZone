@@ -11,10 +11,40 @@
 
 
             <style>
+                  /* CSS for table */
+            table {
+                width: 70%;
+                border-collapse: collapse;
+            }
+
+            th,
+            td {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: left;
+                background-color: #939090;
+            }
+
+            th {
+                background-color: #f2f2f2;
+            }
                 .modify-booking {
                     display: none;
                 }
-             
+
+                .message {
+                    animation: hide 15s forwards;
+                }
+
+                @keyframes hide {
+                    0% {
+                        opacity: 1;
+                    }
+
+                    100% {
+                        opacity: 0;
+                    }
+                }
             </style>
 
 
@@ -42,13 +72,13 @@
 
                         <td>
                             <form id="zoners" action="/GameZone/booking/showZoners.htm" method="get"
-                             style="display: inline;">
-                            <input type="hidden" name="gamerId" value="${booking.bookingId.gamer.gamerId}">
-                            <input type="hidden" name="gameId" value="${booking.bookingId.games.gameId}">
-                            <input type="hidden" name="bookDate" value="${booking.bookingId.bookDate}">
-                            <input type="submit" value="Show" onclick=showZoners(this)>
-                        </form>
-                    </td>
+                                style="display: inline;">
+                                <input type="hidden" name="gamerId" value="${booking.bookingId.gamer.gamerId}">
+                                <input type="hidden" name="gameId" value="${booking.bookingId.games.gameId}">
+                                <input type="hidden" name="bookDate" value="${booking.bookingId.bookDate}">
+                                <input type="submit" value="Show" onclick=showZoners(this)>
+                            </form>
+                        </td>
                         <td>
                             <jsp:useBean id="current" class="java.util.Date" />
                             <c:if test="${booking.bookingId.bookDate lt current}">
@@ -58,6 +88,7 @@
                                     <input type="hidden" name="gameId" value="${booking.bookingId.games.gameId}">
                                     <input type="hidden" name="bookDate" value="${booking.bookingId.bookDate}">
                                     <input type="text" name="score" id="score" value="${booking.score}">
+
                                     <input type="submit" value="Edit Score">
                                 </form>
 
@@ -66,7 +97,9 @@
                             <c:if test="${booking.bookingId.bookDate gt now}">
                                 <form action="/GameZone/booking/cancelBooking.htm" method="post"
                                     style="display: inline;">
-                                    <input type="hidden" name="bookingId" value="${booking.bookingId}">
+                                    <input type="hidden" name="gamerId" value="${booking.bookingId.gamer.gamerId}">
+                                    <input type="hidden" name="gameId" value="${booking.bookingId.games.gameId}">
+                                    <input type="hidden" name="bookDate" value="${booking.bookingId.bookDate}">
                                     <button type="submit" value="Cancel Booking">Cancel Booking</button>
                                 </form>
                                 <input type="hidden" name="gameId" value="${booking.bookingId.games.gameId}">
@@ -74,8 +107,7 @@
                                 <button type="submit" value="Modify Booking" onclick=showModifyBookingForm(this)
                                     data-bookDate="${booking.bookingId.bookDate}"
                                     data-gameId="${booking.bookingId.games.gameId}"
-                                    data-gameName="${booking.bookingId.games.gameName}"
-                                    >Modify Booking</button>
+                                    data-gameName="${booking.bookingId.games.gameName}">Modify Booking</button>
 
                             </c:if>
 
@@ -84,11 +116,16 @@
                 </c:forEach>
             </table>
 
+
+            <div class="message">
+                <p> ${sessionScope.message}</p>
+            </div>
+
             <div class="modify-booking" id="modifyBookingForm">
-                <h2>Modify Booking <span id="selectedGameName" ></span></h2>
+                <h2>Modify Booking <span id="selectedGameName"></span></h2>
                 <form action="/GameZone/booking/modifyBooking.htm" method="get">
                     <label for="date">Date: </label>
-                    <input type="date" id="bookDate" name="bookDate">
+                    <input type="date" id="bookDate" name="bookDate" onchange=checkDate()>
                     <br>
                     <label for="slot">Slot:</label>
                     <select id="slot" name="slot">
@@ -99,6 +136,7 @@
                     </select>
                     <br>
 
+                    <p id="error-msg"></p>
                     <!-- <span id="selectedGameId" id="gameId" name="gameId"></span>  -->
                     <input type="hidden" id="gameId" name="gameId">
                     <input type="date" id="currBookDate" name="currBookDate" hidden>
@@ -139,9 +177,24 @@
                     }
                 }
 
+                function checkDate(element) {
+                
+                var selectedDate = new Date(document.getElementById("bookDate").value);
+                var currentDate = new Date();
+                if (selectedDate < currentDate) {
+                    document.getElementById("error-msg").innerHTML = "Selected date cannot be less than today's date.";
+                    document.getElementById("modifyBookingForm").querySelector("input[type='submit']").disabled = true;
+                } else {
+                    document.getElementById("error-msg").innerHTML = "";
+                    document.getElementById("modifyBookingForm").querySelector("input[type='submit']").disabled = false;
+                }
+           
+                }
+    
+
 
                 function showZoners(element) {
-                   
+
                     var display = document.getElementById('zoners').style.display;
                     if (display === "block") {
                         document.getElementById('zoners').style.display = "none"

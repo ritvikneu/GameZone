@@ -45,16 +45,25 @@ public class GamesDAO extends DAO {
 		return gamesList;
 	}
 
-	public List<Games> getGamesByUniv(int univId) {
+	public List<Games> getGamesByUniv(int univId,boolean self) {
 		close();
 		begin();
-		Query qObj = getSession().createQuery("from Games where univId=:univId ");
+		Query qObj;
+		if(self) {
+			 qObj = getSession().createQuery("from Games where univId=:univId ");
+			
+		}else {
+			 qObj = getSession().createQuery("from Games where univId!=:univId ");
+			
+		}
 		qObj.setParameter("univId", univId);
 		List<Games> gamesList = qObj.getResultList();
 		commit();
 		close();
 		return gamesList;
 	}
+	
+
 
 	public void deleteGames(Games games) {
 		begin();

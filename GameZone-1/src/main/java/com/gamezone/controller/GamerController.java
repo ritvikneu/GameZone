@@ -46,15 +46,11 @@ public class GamerController {
 //     @Autowired
 //    private UserValidator uservalidator;
 
-	// Gamer Registration
-//	@GetMapping("/gamerGet/registration.htm")
-//	public String addGamerGET(ModelMap model, Gamer gamer, GamerDAO gamerDao, UniversityDAO univDAO) throws Exception {
-//		List<University> univList = univDAO.getAllUniv();
-//		model.addAttribute("univList", univList);
-//		gamer = gamerDao.getGamer(1);
-//		model.addAttribute("gamer", gamer);
-//		return "gamer-registration";
-//	}
+@GetMapping("/gamer/gameCard.htm")
+public String addGamerGET(ModelMap model, Gamer gamer, GamerDAO gamerDao, UniversityDAO univDAO) throws Exception {
+	
+	return "game-card";
+}
 
 	@GetMapping("/gamer/login.htm")
 	public ModelAndView displayLogin(@ModelAttribute("gamer") Gamer gamer, ModelMap model, GamerDAO gamerDao,
@@ -151,10 +147,12 @@ public class GamerController {
 		
 		HttpSession session = request.getSession(false);
 		List<Games> gamesList = null;
+		List<Games> gamesFromOtherUniv = null;
 		if (session != null) {
 			gamer  = (Gamer) session.getAttribute("loggedGamer");
 			if (gamer != null) {
-			 gamesList = gamesDAO.getGamesByUniv(gamer.getUniversity().getUnivId());
+			 gamesList = gamesDAO.getGamesByUniv(gamer.getUniversity().getUnivId(),true);
+			 gamesFromOtherUniv =  gamesDAO.getGamesByUniv(gamer.getUniversity().getUnivId(),false);;
 			} 
 
 		}
@@ -162,6 +160,7 @@ public class GamerController {
 		System.out.println("");
 
 		mv.addObject("gamesList", gamesList);
+		mv.addObject("gamesFromOtherUniv", gamesFromOtherUniv);
 		mv.setViewName("games-list");
 
 		return mv;

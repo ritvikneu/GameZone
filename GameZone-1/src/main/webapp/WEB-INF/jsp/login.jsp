@@ -6,7 +6,7 @@
     <title>Login/Registration Page</title>
     <style>
       body {
-        background-image: "gamezone.jpg"
+        background-image: "https://d1csarkz8obe9u.cloudfront.net/posterpreviews/game-zone-design-template-24ff8778ca19000862c91a8d924c2c0a_screen.jpg?ts=1637015364"
       }
 
       /* CSS for container */
@@ -96,7 +96,7 @@
           <input type="submit" value="LOGIN" />
 
         </form>
-        <a href="/GameZone/admin/getuniv" class="admin-login"> ADMIN LOGIN</a>
+        <a href="/GameZone/admin/login" class="admin-login"> ADMIN LOGIN</a>
 
         <form id="register-form" method="POST" action="/GameZone/gamer/register.htm">
           <h2>Gamer Registration</h2>

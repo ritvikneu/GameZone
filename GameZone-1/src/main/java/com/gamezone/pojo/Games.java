@@ -27,6 +27,7 @@ public class Games {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int 	gameId;
     private String gameName;
+    private String description;
     private String location;
     private int availSlots;
     
@@ -54,8 +55,15 @@ public class Games {
         this.gameName = gameName;
     }
 
+    public String getDescription() {
+		return description;
+	}
 
-    public String getLocation() {
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getLocation() {
         return location;
     }
 
